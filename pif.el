@@ -116,18 +116,23 @@ mode."
   (when pif-enable
     (pif--reset-colors)))
 
-(defun pif-update (appearance)
+(defun pif-update (appearance &optional frame)
   "Save or update colors, size, and position of the initial frame.
 
 APPEARANCE specifies whether to save the colors for `light' or `dark'
 mode.  Call this at your convenience.  The `kill-emacs-hook' might be a
 good choice."
-  (let* ((initial-frame (car (visible-frame-list))))
-    (pif--update-state 'colors appearance (frame-parameter initial-frame 'background-color))
-    (pif--update-state 'frame 'width      (frame-parameter initial-frame 'width))
-    (pif--update-state 'frame 'height     (frame-parameter initial-frame 'height))
-    (pif--update-state 'frame 'left       (frame-parameter initial-frame 'left))
-    (pif--update-state 'frame 'top        (frame-parameter initial-frame 'top))))
+  (let* ((frame (or frame (car (visible-frame-list)))))
+    (when (and frame (display-graphic-p frame))
+      (pif--update-state 'colors appearance (frame-parameter frame 'background-color))
+      (pif--update-state 'frame 'width      (frame-parameter frame 'width))
+      (pif--update-state 'frame 'height     (frame-parameter frame 'height))
+      (pif--update-state 'frame 'left       (frame-parameter frame 'left))
+      (pif--update-state 'frame 'top        (frame-parameter frame 'top))
+      (setf (alist-get 'width  default-frame-alist) (+ 2 (frame-parameter frame 'width)))
+      (setf (alist-get 'height default-frame-alist) (+ 1 (frame-parameter frame 'height)))
+      (setf (alist-get 'left   default-frame-alist) (frame-parameter frame 'left))
+      (setf (alist-get 'top    default-frame-alist) (frame-parameter frame 'top)))))
 
 ;;;; Private Functions
 
